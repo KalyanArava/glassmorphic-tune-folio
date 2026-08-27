@@ -26,6 +26,8 @@ const raw: [string, string, string, number][] = [
 ];
 
 export const songs: Song[] = raw.map(([title, artist, duration, hue], i) => {
-  const [m, s] = duration.split(":").map(Number);
+  const parts = duration.split(":").map(Number);
+  const m = parts[0] ?? 0;
+  const s = parts[1] ?? 0;
   return { id: i + 1, title, artist, duration, seconds: m * 60 + s, hue };
 });
