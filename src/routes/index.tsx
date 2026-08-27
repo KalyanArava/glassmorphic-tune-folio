@@ -73,9 +73,9 @@ function Index() {
         <img
           src={person.url}
           alt="Kalyan Arava standing on a street at dusk"
-          className="absolute inset-y-0 right-0 h-full w-full object-cover object-right sm:w-[62%] lg:w-[52%]"
+          className="absolute inset-y-0 right-0 h-full w-[66%] object-cover object-center sm:w-[60%] lg:w-[50%]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.09_0.01_260/0.96)_0%,oklch(0.09_0.01_260/0.85)_38%,oklch(0.09_0.01_260/0.35)_62%,transparent_88%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.11_0.01_260)_0%,oklch(0.11_0.01_260)_30%,oklch(0.11_0.01_260/0.72)_48%,oklch(0.11_0.01_260/0.25)_70%,transparent_92%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_50%,transparent_45%,oklch(0_0_0/0.6)_100%)]" />
       </div>
 
