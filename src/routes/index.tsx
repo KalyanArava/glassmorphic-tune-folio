@@ -7,6 +7,7 @@ import { PlaylistHero } from "@/components/poster/PlaylistHero";
 import { PlaylistTabs } from "@/components/poster/PlaylistTabs";
 import { PlaylistGlassPanel } from "@/components/poster/PlaylistGlassPanel";
 import { MusicPlayer } from "@/components/poster/MusicPlayer";
+import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -15,13 +16,15 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "A cinematic Telugu music playlist poster: 15 songs full of feelings, memories and the songs that stay.",
+          "A cinematic music playlist poster: Telugu, Hindi and 60s classics that play straight from YouTube.",
       },
       { property: "og:title", content: "Nadaanian Vibes Only — Kalyan Arava's Playlist" },
       {
         property: "og:description",
-        content: "A cinematic Telugu playlist of 15 songs full of feelings and memories.",
+        content: "Telugu, Hindi and 60s golden-era playlists, playable right on the page.",
       },
+      { property: "og:type", content: "music.playlist" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -32,41 +35,34 @@ function Index() {
   const current = playlists.find((p) => p.key === tab) ?? playlists[0]!;
   const [order, setOrder] = useState(current.songs);
   const [activeId, setActiveId] = useState<number | null>(1);
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(70);
+
+  const yt = useYouTubePlayer("yt-audio-host");
+  const { state, loadPlaylist, playAt, toggle, next, prev, setVolume: setYtVolume } = yt;
+
+  // Load the active playlist into the YouTube player.
+  useEffect(() => {
+    if (!state.ready) return;
+    loadPlaylist(current.listId, 0, false);
+  }, [state.ready, current.listId, loadPlaylist]);
+
+  useEffect(() => {
+    if (state.ready) setYtVolume(volume);
+  }, [state.ready, volume, setYtVolume]);
+
+  // Keep the highlighted row in sync with whatever YouTube is playing.
+  useEffect(() => {
+    const song = order[state.index];
+    if (song) setActiveId(song.id);
+  }, [state.index, order]);
 
   const active = useMemo(() => order.find((s) => s.id === activeId) ?? null, [order, activeId]);
 
-  const step = (dir: 1 | -1) => {
-    if (!active) return;
-    const i = order.findIndex((s) => s.id === active.id);
-    const next = order[(i + dir + order.length) % order.length];
-    if (next) {
-      setActiveId(next.id);
-      setProgress(0);
-      setPlaying(true);
-    }
-  };
-
-  useEffect(() => {
-    if (!playing || !active) return;
-    const t = setInterval(() => {
-      setProgress((p) => {
-        if (p + 1 >= active.seconds) {
-          step(1);
-          return 0;
-        }
-        return p + 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [playing, active, order]);
-
   const select = (id: number) => {
+    const idx = order.findIndex((s) => s.id === id);
+    if (idx < 0) return;
     setActiveId(id);
-    setProgress(0);
-    setPlaying(true);
+    playAt(idx);
   };
 
   return (
@@ -76,47 +72,52 @@ function Index() {
         <img
           src={person.url}
           alt="Kalyan Arava standing on a street at dusk"
-          className="absolute inset-y-0 right-0 h-full w-[66%] object-cover object-center sm:w-[60%] lg:w-[50%]"
+          className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center sm:w-[66%] lg:w-[58%]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.11_0.01_260)_0%,oklch(0.11_0.01_260)_30%,oklch(0.11_0.01_260/0.72)_48%,oklch(0.11_0.01_260/0.25)_70%,transparent_92%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_50%,transparent_45%,oklch(0_0_0/0.6)_100%)]" />
+        {/* Soft, natural fade so the photo stays visible and the text stays readable */}
+        <div className="absolute inset-0 bg-[linear-gradient(100deg,oklch(0.11_0.01_260/0.92)_0%,oklch(0.11_0.01_260/0.78)_26%,oklch(0.11_0.01_260/0.5)_46%,oklch(0.11_0.01_260/0.22)_66%,oklch(0.11_0.01_260/0.05)_88%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,oklch(0.11_0.01_260/0.75),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(130%_90%_at_55%_45%,transparent_55%,oklch(0_0_0/0.42)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-28 pt-6 sm:max-w-[560px] lg:max-w-[1100px] lg:px-14">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-40 pt-6 sm:max-w-[560px] lg:max-w-[1100px] lg:px-14">
         <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-full lg:max-w-[520px]">
           <YouTubeHeader />
           <PlaylistTabs
             playlists={playlists}
             activeKey={tab}
             onSelect={(key) => {
-              const next = playlists.find((p) => p.key === key);
-              if (!next) return;
+              const nextList = playlists.find((p) => p.key === key);
+              if (!nextList) return;
               setTab(key);
-              setOrder(next.songs);
-              setActiveId(next.songs[0]?.id ?? null);
-              setProgress(0);
-              setPlaying(false);
+              setOrder(nextList.songs);
+              setActiveId(nextList.songs[0]?.id ?? null);
+              loadPlaylist(nextList.listId, 0, false);
             }}
           />
           <PlaylistHero
             playlist={current}
             onPlayAll={() => {
-              const first = order[0];
-              if (first) select(first.id);
+              loadPlaylist(current.listId, 0, true);
             }}
             onShuffle={() => {
-              const shuffled = [...order].sort(() => Math.random() - 0.5);
-              setOrder(shuffled);
-              const first = shuffled[0];
-              if (first) select(first.id);
+              const i = Math.floor(Math.random() * order.length);
+              loadPlaylist(current.listId, i, true);
             }}
           />
           <PlaylistGlassPanel
             order={order}
             activeId={activeId}
-            playing={playing}
+            playing={state.playing}
             onSelect={select}
           />
+        </div>
+      </div>
+
+      {/* Live YouTube video — small glass card, this is what produces the sound */}
+      <div className="fixed bottom-[7.5rem] right-4 z-20 w-[168px] overflow-hidden rounded-[16px] border border-poster-fg/20 bg-poster-shade/50 p-1 shadow-glass backdrop-blur-2xl sm:w-[200px] lg:bottom-4 lg:right-6 lg:w-[240px]">
+        <div className="aspect-video w-full overflow-hidden rounded-[12px] bg-black">
+          <div id="yt-audio-host" className="h-full w-full" />
         </div>
       </div>
 
@@ -125,13 +126,18 @@ function Index() {
           <div className="mx-auto w-full max-w-[380px] sm:max-w-[430px] lg:mx-0 lg:ml-14 lg:max-w-[520px]">
             <MusicPlayer
               song={active}
-              playing={playing}
-              progress={progress}
+              nowPlaying={state.videoTitle}
+              playing={state.playing}
+              progress={state.current}
+              durationSec={state.duration}
               volume={volume}
-              onToggle={() => setPlaying((p) => !p)}
-              onNext={() => step(1)}
-              onPrev={() => step(-1)}
-              onVolume={setVolume}
+              onToggle={toggle}
+              onNext={next}
+              onPrev={prev}
+              onVolume={(v) => {
+                setVolume(v);
+                setYtVolume(v);
+              }}
             />
           </div>
         </div>
