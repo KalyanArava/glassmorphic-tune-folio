@@ -7,10 +7,12 @@ export function PlaylistHero({
   onPlayAll,
   onShuffle,
 }: {
-  playlist: Playlist;
+  playlist?: Playlist;
   onPlayAll: () => void;
   onShuffle: () => void;
 }) {
+  if (!playlist) return null;
+
   return (
     <section className="mt-7">
       <p className="text-[0.62rem] font-semibold uppercase tracking-[0.32em] text-yt-red">
