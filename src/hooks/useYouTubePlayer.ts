@@ -56,6 +56,14 @@ export function useYouTubePlayer(hostId: string) {
         playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
         events: {
           onReady: () => setState((s) => ({ ...s, ready: true })),
+          onError: () => {
+            // Some videos are not embeddable — skip to the next one.
+            try {
+              playerRef.current?.nextVideo?.();
+            } catch {
+              /* noop */
+            }
+          },
           onStateChange: (e: any) => {
             const p = playerRef.current;
             setState((s) => ({
