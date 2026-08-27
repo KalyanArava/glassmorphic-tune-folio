@@ -28,7 +28,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [order, setOrder] = useState(baseSongs);
+  const [tab, setTab] = useState<Playlist["key"]>("telugu");
+  const current = playlists.find((p) => p.key === tab) ?? playlists[0]!;
+  const [order, setOrder] = useState(current.songs);
   const [activeId, setActiveId] = useState<number | null>(1);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
