@@ -85,7 +85,21 @@ function Index() {
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-28 pt-6 sm:max-w-[560px] lg:max-w-[1100px] lg:px-14">
         <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-full lg:max-w-[520px]">
           <YouTubeHeader />
+          <PlaylistTabs
+            playlists={playlists}
+            activeKey={tab}
+            onSelect={(key) => {
+              const next = playlists.find((p) => p.key === key);
+              if (!next) return;
+              setTab(key);
+              setOrder(next.songs);
+              setActiveId(next.songs[0]?.id ?? null);
+              setProgress(0);
+              setPlaying(false);
+            }}
+          />
           <PlaylistHero
+            playlist={current}
             onPlayAll={() => {
               const first = order[0];
               if (first) select(first.id);
