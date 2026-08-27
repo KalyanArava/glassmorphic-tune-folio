@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import person from "@/assets/person.jpg.asset.json";
-import { songs as baseSongs } from "@/data/playlist";
+import { playlists, type Playlist } from "@/data/playlist";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
 import { PlaylistHero } from "@/components/poster/PlaylistHero";
+import { PlaylistTabs } from "@/components/poster/PlaylistTabs";
 import { PlaylistGlassPanel } from "@/components/poster/PlaylistGlassPanel";
 import { MusicPlayer } from "@/components/poster/MusicPlayer";
 
