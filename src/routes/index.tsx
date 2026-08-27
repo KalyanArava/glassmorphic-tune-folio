@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import person from "@/assets/person.jpg.asset.json";
-import { songs as baseSongs } from "@/data/playlist";
+import { playlists, type Playlist } from "@/data/playlist";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
 import { PlaylistHero } from "@/components/poster/PlaylistHero";
+import { PlaylistTabs } from "@/components/poster/PlaylistTabs";
 import { PlaylistGlassPanel } from "@/components/poster/PlaylistGlassPanel";
 import { MusicPlayer } from "@/components/poster/MusicPlayer";
 
@@ -27,7 +28,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [order, setOrder] = useState(baseSongs);
+  const [tab, setTab] = useState<Playlist["key"]>("telugu");
+  const current = playlists.find((p) => p.key === tab) ?? playlists[0]!;
+  const [order, setOrder] = useState(current.songs);
   const [activeId, setActiveId] = useState<number | null>(1);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -82,7 +85,21 @@ function Index() {
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-28 pt-6 sm:max-w-[560px] lg:max-w-[1100px] lg:px-14">
         <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-full lg:max-w-[520px]">
           <YouTubeHeader />
+          <PlaylistTabs
+            playlists={playlists}
+            activeKey={tab}
+            onSelect={(key) => {
+              const next = playlists.find((p) => p.key === key);
+              if (!next) return;
+              setTab(key);
+              setOrder(next.songs);
+              setActiveId(next.songs[0]?.id ?? null);
+              setProgress(0);
+              setPlaying(false);
+            }}
+          />
           <PlaylistHero
+            playlist={current}
             onPlayAll={() => {
               const first = order[0];
               if (first) select(first.id);

@@ -30,7 +30,9 @@ export function PlaylistGlassPanel({ order, activeId, playing, onSelect }: Props
           />
         ))}
       </div>
-      <p className="px-1.5 pb-1 pt-3 text-[0.62rem] text-poster-fg/45">15 songs • 1.2M views</p>
+      <p className="px-1.5 pb-1 pt-3 text-[0.62rem] text-poster-fg/45">
+        {order.length} songs • curated by Kalyan
+      </p>
     </section>
   );
 }
