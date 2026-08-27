@@ -80,7 +80,7 @@ function Index() {
       </div>
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-28 pt-6 sm:max-w-[560px] lg:max-w-[1100px] lg:px-14">
-        <div className="lg:max-w-[520px]">
+        <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-full lg:max-w-[520px]">
           <YouTubeHeader />
           <PlaylistHero
             onPlayAll={() => {
@@ -105,7 +105,7 @@ function Index() {
 
       {active && (
         <div className="fixed inset-x-0 bottom-0 z-10 px-4 pb-4">
-          <div className="mx-auto w-full max-w-[430px] sm:max-w-[560px] lg:mx-0 lg:ml-14 lg:max-w-[520px]">
+          <div className="mx-auto w-full max-w-[380px] sm:max-w-[430px] lg:mx-0 lg:ml-14 lg:max-w-[520px]">
             <MusicPlayer
               song={active}
               playing={playing}
