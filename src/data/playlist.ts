@@ -14,6 +14,7 @@ export type Playlist = {
   accentLine: string;
   tagline: string;
   url: string;
+  listId: string;
   songs: Song[];
 };
 
@@ -117,6 +118,7 @@ export const playlists: Playlist[] = [
     accentLine: "Vibes Only",
     tagline: "A playlist full of feelings, memories and the songs that stay.",
     url: "https://youtube.com/playlist?list=RDgB_dBDdKRBc&playnext=1",
+    listId: "RDgB_dBDdKRBc",
     songs: build(telugu),
   },
   {
@@ -126,6 +128,7 @@ export const playlists: Playlist[] = [
     accentLine: "Hindi Hearts",
     tagline: "Indie soft-pop and Bollywood melodies on endless repeat.",
     url: "https://youtube.com/playlist?list=RDHeBJMzrM7hU&playnext=1",
+    listId: "RDHeBJMzrM7hU",
     songs: build(hindi),
   },
   {
@@ -135,6 +138,7 @@ export const playlists: Playlist[] = [
     accentLine: "Golden Era",
     tagline: "1950s–60s Telugu classics — ANR, NTR, Savitri and timeless tunes.",
     url: "https://youtube.com/playlist?list=PLy-G82tlQppGdVHyz6Wz5Dx09hayh4wSd",
+    listId: "PLy-G82tlQppGdVHyz6Wz5Dx09hayh4wSd",
     songs: build(sixties),
   },
 ];
