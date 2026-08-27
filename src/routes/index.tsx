@@ -69,13 +69,20 @@ function Index() {
     <main className="relative min-h-screen overflow-hidden bg-poster-shade font-sans text-poster-fg">
       {/* Photograph */}
       <div className="pointer-events-none fixed inset-0">
+        {/* Blurred full-bleed backdrop so the left side feels natural, not a black block */}
+        <img
+          src={person.url}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full scale-110 object-cover object-center opacity-60 blur-3xl"
+        />
         <img
           src={person.url}
           alt="Kalyan Arava standing on a street at dusk"
-          className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center sm:w-[66%] lg:w-[58%]"
+          className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center [mask-image:linear-gradient(to_right,transparent_0%,black_18%)] sm:w-[66%] lg:w-[58%]"
         />
         {/* Soft, natural fade so the photo stays visible and the text stays readable */}
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,oklch(0.11_0.01_260/0.92)_0%,oklch(0.11_0.01_260/0.78)_26%,oklch(0.11_0.01_260/0.5)_46%,oklch(0.11_0.01_260/0.22)_66%,oklch(0.11_0.01_260/0.05)_88%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(100deg,oklch(0.11_0.01_260/0.88)_0%,oklch(0.11_0.01_260/0.74)_30%,oklch(0.11_0.01_260/0.46)_52%,oklch(0.11_0.01_260/0.16)_74%,transparent_95%)]" />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,oklch(0.11_0.01_260/0.75),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(130%_90%_at_55%_45%,transparent_55%,oklch(0_0_0/0.42)_100%)]" />
       </div>
