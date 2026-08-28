@@ -31,20 +31,58 @@ export type YtState = {
   playing: boolean;
   current: number;
   duration: number;
-  index: number;
+  /** The video the player is actually holding right now. */
+  videoId: string | null;
   videoTitle: string;
+  unavailable: boolean;
 };
 
-export function useYouTubePlayer(hostId: string) {
+type Options = {
+  /** Fired when the *expected* video finishes. */
+  onEnded?: () => void;
+  /** Fired when the *expected* video cannot be played (embed blocked / removed). */
+  onUnavailable?: (videoId: string) => void;
+};
+
+const initial: YtState = {
+  ready: false,
+  playing: false,
+  current: 0,
+  duration: 0,
+  videoId: null,
+  videoTitle: "",
+  unavailable: false,
+};
+
+/**
+ * Single-video YouTube player. It never loads a YouTube *playlist*, so the
+ * player can never wander into a video that the app did not ask for.
+ * Every event is validated against `expectedRef` (the active song's video id);
+ * stale callbacks from a previous song/playlist are dropped.
+ */
+export function useYouTubePlayer(hostId: string, opts: Options = {}) {
   const playerRef = useRef<any>(null);
-  const [state, setState] = useState<YtState>({
-    ready: false,
-    playing: false,
-    current: 0,
-    duration: 0,
-    index: 0,
-    videoTitle: "",
-  });
+  const expectedRef = useRef<string | null>(null);
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
+
+  const [state, setState] = useState<YtState>(initial);
+
+  const currentVideoId = () => {
+    try {
+      const url: string | undefined = playerRef.current?.getVideoData?.()?.video_id;
+      return url ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  /** true when the player is holding the video the app currently expects */
+  const inSync = () => {
+    const expected = expectedRef.current;
+    const actual = currentVideoId();
+    return !expected || !actual || expected === actual;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -57,21 +95,27 @@ export function useYouTubePlayer(hostId: string) {
         events: {
           onReady: () => setState((s) => ({ ...s, ready: true })),
           onError: () => {
-            // Some videos are not embeddable — skip to the next one.
-            try {
-              playerRef.current?.nextVideo?.();
-            } catch {
-              /* noop */
-            }
+            const id = currentVideoId() ?? expectedRef.current;
+            if (!inSync()) return; // stale error from a previous song
+            setState((s) => ({ ...s, unavailable: true, playing: false }));
+            if (id) optsRef.current.onUnavailable?.(id);
           },
           onStateChange: (e: any) => {
             const p = playerRef.current;
+            const actual = currentVideoId();
+            if (!inSync()) return; // event belongs to a previous song/playlist
+            if (e.data === YT.PlayerState.ENDED) {
+              setState((s) => ({ ...s, playing: false }));
+              optsRef.current.onEnded?.();
+              return;
+            }
             setState((s) => ({
               ...s,
               playing: e.data === YT.PlayerState.PLAYING,
-              index: p?.getPlaylistIndex?.() ?? s.index,
-              duration: p?.getDuration?.() ?? s.duration,
+              videoId: actual ?? s.videoId,
+              duration: p?.getDuration?.() || s.duration,
               videoTitle: p?.getVideoData?.()?.title ?? s.videoTitle,
+              unavailable: false,
             }));
           },
         },
@@ -88,47 +132,63 @@ export function useYouTubePlayer(hostId: string) {
     };
   }, [hostId]);
 
+  // Progress ticker — also guarded so it never reports another video's time.
   useEffect(() => {
     const t = setInterval(() => {
       const p = playerRef.current;
       if (!p?.getCurrentTime) return;
+      const actual = currentVideoId();
+      if (expectedRef.current && actual && actual !== expectedRef.current) return;
       setState((s) => ({
         ...s,
         current: p.getCurrentTime() ?? 0,
-        duration: p.getDuration?.() ?? s.duration,
-        index: p.getPlaylistIndex?.() ?? s.index,
+        duration: p.getDuration?.() || s.duration,
+        videoId: actual ?? s.videoId,
         videoTitle: p.getVideoData?.()?.title ?? s.videoTitle,
       }));
     }, 500);
     return () => clearInterval(t);
   }, []);
 
-  const loadPlaylist = useCallback((listId: string, index = 0, autoplay = false) => {
+  /** Load one explicit video id. This is the only way audio ever starts. */
+  const loadVideo = useCallback((videoId: string, autoplay: boolean) => {
+    expectedRef.current = videoId;
+    setState((s) => ({
+      ...s,
+      videoId,
+      videoTitle: "",
+      current: 0,
+      duration: 0,
+      playing: false,
+      unavailable: false,
+    }));
     const p = playerRef.current;
-    if (!p?.cuePlaylist) return;
-    const args = { list: listId, listType: "playlist", index, suggestedQuality: "small" };
-    if (autoplay) p.loadPlaylist(args);
-    else p.cuePlaylist(args);
+    if (!p?.cueVideoById) return;
+    if (autoplay) p.loadVideoById({ videoId, suggestedQuality: "small" });
+    else p.cueVideoById({ videoId, suggestedQuality: "small" });
   }, []);
 
-  const playAt = useCallback((index: number) => {
-    const p = playerRef.current;
-    if (!p) return;
-    p.playVideoAt?.(index);
-    p.playVideo?.();
+  /** Stop playback and forget everything about the previous song. */
+  const reset = useCallback(() => {
+    expectedRef.current = null;
+    try {
+      playerRef.current?.stopVideo?.();
+    } catch {
+      /* noop */
+    }
+    setState((s) => ({ ...initial, ready: s.ready }));
   }, []);
 
+  const play = useCallback(() => playerRef.current?.playVideo?.(), []);
+  const pause = useCallback(() => playerRef.current?.pauseVideo?.(), []);
   const toggle = useCallback(() => {
     const p = playerRef.current;
     if (!p) return;
     if (state.playing) p.pauseVideo?.();
     else p.playVideo?.();
   }, [state.playing]);
-
-  const next = useCallback(() => playerRef.current?.nextVideo?.(), []);
-  const prev = useCallback(() => playerRef.current?.previousVideo?.(), []);
   const setVolume = useCallback((v: number) => playerRef.current?.setVolume?.(v), []);
   const seek = useCallback((sec: number) => playerRef.current?.seekTo?.(sec, true), []);
 
-  return { state, loadPlaylist, playAt, toggle, next, prev, setVolume, seek };
+  return { state, loadVideo, reset, play, pause, toggle, setVolume, seek };
 }
