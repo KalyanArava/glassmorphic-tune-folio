@@ -38,7 +38,7 @@ export function PlaylistGlassPanel({ order, activeId, playing, onSelect }: Props
         ))}
       </div>
       <p className="px-1.5 pb-1 pt-3 text-[0.62rem] text-poster-fg/45">
-        {order.length} songs • curated by Kalyan
+        {order.length} songs • curated by {site.owner.curatedBy}
       </p>
     </section>
   );
