@@ -82,6 +82,7 @@ function Index() {
     for (let n = 1; n <= list.length; n++) {
       const song = list[(((from + dir * n) % list.length) + list.length) % list.length];
       if (!song) continue;
+      loadedIdRef.current = song.id;
       setActiveId(song.id);
       loadVideo(song.youtubeVideoId, autoplay);
       return;
