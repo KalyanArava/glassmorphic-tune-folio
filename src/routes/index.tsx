@@ -153,7 +153,7 @@ function Index() {
 
       {active && (
         <div className="fixed inset-x-0 bottom-0 z-10 px-4 pb-4">
-          <div className="mx-auto w-full max-w-[380px] sm:max-w-[430px] lg:mx-0 lg:ml-14 lg:max-w-[520px]">
+          <div className="mx-auto w-full max-w-[380px] sm:max-w-[430px] lg:mx-0 lg:ml-10 lg:max-w-[620px] xl:ml-16">
             <MusicPlayer
               song={active}
               nowPlaying={state.videoTitle}
