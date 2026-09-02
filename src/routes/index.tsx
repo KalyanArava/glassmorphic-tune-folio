@@ -71,6 +71,7 @@ function Index() {
   }, [state.ready, volume, setYtVolume]);
 
   const playSong = (song: (typeof order)[number]) => {
+    loadedIdRef.current = song.id;
     setActiveId(song.id);
     loadVideo(song.youtubeVideoId, true);
   };
