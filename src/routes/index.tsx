@@ -104,7 +104,7 @@ function Index() {
           src={person.url}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full scale-110 object-cover object-center opacity-90 blur-[70px] saturate-125"
+          className="absolute inset-0 h-full w-full scale-125 object-cover object-center opacity-100 blur-[90px] saturate-150 brightness-110"
         />
         <img
           src={person.url}
