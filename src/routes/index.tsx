@@ -36,7 +36,7 @@ function Index() {
   const order = current.songs;
   const [activeId, setActiveId] = useState<string | null>(order[0]?.id ?? null);
   const [volume, setVolume] = useState(70);
-  const [skipped, setSkipped] = useState<Record<string, true>>({});
+  
 
   const activeIdRef = useRef<string | null>(activeId);
   activeIdRef.current = activeId;
@@ -47,10 +47,7 @@ function Index() {
 
   const yt = useYouTubePlayer("yt-audio-host", {
     onEnded: () => stepRef.current(1, true),
-    onUnavailable: (videoId) => {
-      setSkipped((s) => ({ ...s, [videoId]: true }));
-      stepRef.current(1, true);
-    },
+    onUnavailable: () => stepRef.current(1, true),
   });
   const { state, loadVideo, toggle, setVolume: setYtVolume } = yt;
 
