@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import person from "@/assets/person.jpg.asset.json";
 import { playlists, type Playlist } from "@/data/playlist";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
@@ -121,22 +121,23 @@ function Index() {
             onSelect={(key) => {
               const nextList = playlists.find((p) => p.key === key);
               if (!nextList) return;
+              yt.reset();
               setTab(key);
-              setOrder(nextList.songs);
               setActiveId(nextList.songs[0]?.id ?? null);
-              loadPlaylist(nextList.listId, 0, false);
             }}
           />
           <PlaylistHero
             playlist={current}
             onPlayAll={() => {
-              loadPlaylist(current.listId, 0, true);
+              const first = order[0];
+              if (first) playSong(first);
             }}
             onShuffle={() => {
-              const i = Math.floor(Math.random() * order.length);
-              loadPlaylist(current.listId, i, true);
+              const song = order[Math.floor(Math.random() * order.length)];
+              if (song) playSong(song);
             }}
           />
+
           <PlaylistGlassPanel
             order={order}
             activeId={activeId}
@@ -164,8 +165,9 @@ function Index() {
               durationSec={state.duration}
               volume={volume}
               onToggle={toggle}
-              onNext={next}
-              onPrev={prev}
+              onNext={() => step(1, true)}
+              onPrev={() => step(-1, true)}
+
               onVolume={(v) => {
                 setVolume(v);
                 setYtVolume(v);
