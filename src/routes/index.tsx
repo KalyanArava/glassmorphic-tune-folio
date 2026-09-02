@@ -126,6 +126,7 @@ function Index() {
             onSelect={(key) => {
               const nextList = playlists.find((p) => p.key === key);
               if (!nextList) return;
+              loadedIdRef.current = null;
               yt.reset();
               setTab(key);
               setActiveId(nextList.songs[0]?.id ?? null);
