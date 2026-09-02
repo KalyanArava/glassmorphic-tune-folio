@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import person from "@/assets/person.jpg.asset.json";
 import { playlists, type Playlist } from "@/data/playlist";
+import { site } from "@/data/site";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
 import { PlaylistHero } from "@/components/poster/PlaylistHero";
 import { PlaylistTabs } from "@/components/poster/PlaylistTabs";
