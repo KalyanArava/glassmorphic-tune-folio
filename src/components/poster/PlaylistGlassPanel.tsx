@@ -22,7 +22,10 @@ export function PlaylistGlassPanel({ order, activeId, playing, onSelect }: Props
         <span>Duration</span>
         <span />
       </div>
-      <div className="mt-1 max-h-[24rem] divide-y divide-poster-fg/8 overflow-y-auto pr-1 [scrollbar-color:oklch(1_0_0/0.25)_transparent] [scrollbar-width:thin] sm:max-h-[26rem]">
+      <div
+        style={{ maxHeight: `${site.ui.visibleSongs * ROW_REM}rem` }}
+        className="mt-1 divide-y divide-poster-fg/8 overflow-y-auto pr-1 [scrollbar-color:oklch(1_0_0/0.25)_transparent] [scrollbar-width:thin]"
+      >
         {order.map((song, i) => (
           <SongRow
             key={song.id}
