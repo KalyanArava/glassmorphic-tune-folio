@@ -13,17 +13,10 @@ import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Nadaanian Vibes Only — Kalyan Arava's Playlist" },
-      {
-        name: "description",
-        content:
-          "A cinematic music playlist poster: Telugu, Hindi and 60s classics that play straight from YouTube.",
-      },
-      { property: "og:title", content: "Nadaanian Vibes Only — Kalyan Arava's Playlist" },
-      {
-        property: "og:description",
-        content: "Telugu, Hindi and 60s golden-era playlists, playable right on the page.",
-      },
+      { title: site.seo.title },
+      { name: "description", content: site.seo.description },
+      { property: "og:title", content: site.seo.title },
+      { property: "og:description", content: site.seo.description },
       { property: "og:type", content: "music.playlist" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
