@@ -117,8 +117,8 @@ function Index() {
         <div className="absolute inset-0 bg-[radial-gradient(130%_90%_at_55%_45%,transparent_55%,oklch(0_0_0/0.42)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-40 pt-6 sm:max-w-[560px] lg:mx-0 lg:max-w-none lg:px-10 xl:px-16">
-        <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-[52%] lg:max-w-[620px] lg:min-w-[460px]">
+      <div className="relative mx-0 flex min-h-screen w-full max-w-none flex-col px-5 pb-40 pt-6 sm:px-8 lg:px-10 xl:px-16">
+        <div className="w-full min-w-0 sm:w-[72%] sm:max-w-[560px] lg:w-[52%] lg:max-w-[620px] lg:min-w-[460px]">
           <YouTubeHeader />
           <PlaylistTabs
             playlists={playlists}
