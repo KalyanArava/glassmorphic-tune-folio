@@ -53,9 +53,15 @@ function Index() {
 
   const active = useMemo(() => order.find((s) => s.id === activeId) ?? null, [order, activeId]);
 
+  // Tracks the song id already handed to the player, so a user-initiated play
+  // isn't immediately re-cued (paused) by the mount/tab-change effect below.
+  const loadedIdRef = useRef<string | null>(null);
+
   // Cue the active song (never autoplay on mount / tab change).
   useEffect(() => {
     if (!state.ready || !active) return;
+    if (loadedIdRef.current === active.id) return;
+    loadedIdRef.current = active.id;
     loadVideo(active.youtubeVideoId, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.ready, active?.id]);
