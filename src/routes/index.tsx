@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import person from "@/assets/person.jpg.asset.json";
 import { playlists, type Playlist } from "@/data/playlist";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
@@ -33,36 +33,58 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [tab, setTab] = useState<Playlist["key"]>("telugu");
   const current = playlists.find((p) => p.key === tab) ?? playlists[0]!;
-  const [order, setOrder] = useState(current.songs);
-  const [activeId, setActiveId] = useState<number | null>(1);
+  const order = current.songs;
+  const [activeId, setActiveId] = useState<string | null>(order[0]?.id ?? null);
   const [volume, setVolume] = useState(70);
+  
 
-  const yt = useYouTubePlayer("yt-audio-host");
-  const { state, loadPlaylist, playAt, toggle, next, prev, setVolume: setYtVolume } = yt;
+  const activeIdRef = useRef<string | null>(activeId);
+  activeIdRef.current = activeId;
+  const orderRef = useRef(order);
+  orderRef.current = order;
 
-  // Load the active playlist into the YouTube player.
+  const stepRef = useRef<(dir: 1 | -1, autoplay: boolean) => void>(() => {});
+
+  const yt = useYouTubePlayer("yt-audio-host", {
+    onEnded: () => stepRef.current(1, true),
+    onUnavailable: () => stepRef.current(1, true),
+  });
+  const { state, loadVideo, toggle, setVolume: setYtVolume } = yt;
+
+  const active = useMemo(() => order.find((s) => s.id === activeId) ?? null, [order, activeId]);
+
+  // Cue the active song (never autoplay on mount / tab change).
   useEffect(() => {
-    if (!state.ready) return;
-    loadPlaylist(current.listId, 0, false);
-  }, [state.ready, current.listId, loadPlaylist]);
+    if (!state.ready || !active) return;
+    loadVideo(active.youtubeVideoId, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.ready, active?.id]);
 
   useEffect(() => {
     if (state.ready) setYtVolume(volume);
   }, [state.ready, volume, setYtVolume]);
 
-  // Keep the highlighted row in sync with whatever YouTube is playing.
-  useEffect(() => {
-    const song = order[state.index];
-    if (song) setActiveId(song.id);
-  }, [state.index, order]);
+  const playSong = (song: (typeof order)[number]) => {
+    setActiveId(song.id);
+    loadVideo(song.youtubeVideoId, true);
+  };
 
-  const active = useMemo(() => order.find((s) => s.id === activeId) ?? null, [order, activeId]);
+  const step = (dir: 1 | -1, autoplay: boolean) => {
+    const list = orderRef.current;
+    const from = list.findIndex((s) => s.id === activeIdRef.current);
+    for (let n = 1; n <= list.length; n++) {
+      const song = list[(((from + dir * n) % list.length) + list.length) % list.length];
+      if (!song) continue;
+      setActiveId(song.id);
+      loadVideo(song.youtubeVideoId, autoplay);
+      return;
+    }
+  };
+  stepRef.current = step;
 
-  const select = (id: number) => {
-    const idx = order.findIndex((s) => s.id === id);
-    if (idx < 0) return;
-    setActiveId(id);
-    playAt(idx);
+  const select = (id: string) => {
+    const song = order.find((s) => s.id === id);
+    if (song) playSong(song);
   };
 
   return (
@@ -96,22 +118,23 @@ function Index() {
             onSelect={(key) => {
               const nextList = playlists.find((p) => p.key === key);
               if (!nextList) return;
+              yt.reset();
               setTab(key);
-              setOrder(nextList.songs);
               setActiveId(nextList.songs[0]?.id ?? null);
-              loadPlaylist(nextList.listId, 0, false);
             }}
           />
           <PlaylistHero
             playlist={current}
             onPlayAll={() => {
-              loadPlaylist(current.listId, 0, true);
+              const first = order[0];
+              if (first) playSong(first);
             }}
             onShuffle={() => {
-              const i = Math.floor(Math.random() * order.length);
-              loadPlaylist(current.listId, i, true);
+              const song = order[Math.floor(Math.random() * order.length)];
+              if (song) playSong(song);
             }}
           />
+
           <PlaylistGlassPanel
             order={order}
             activeId={activeId}
@@ -139,8 +162,9 @@ function Index() {
               durationSec={state.duration}
               volume={volume}
               onToggle={toggle}
-              onNext={next}
-              onPrev={prev}
+              onNext={() => step(1, true)}
+              onPrev={() => step(-1, true)}
+
               onVolume={(v) => {
                 setVolume(v);
                 setYtVolume(v);
