@@ -53,9 +53,15 @@ function Index() {
 
   const active = useMemo(() => order.find((s) => s.id === activeId) ?? null, [order, activeId]);
 
+  // Tracks the song id already handed to the player, so a user-initiated play
+  // isn't immediately re-cued (paused) by the mount/tab-change effect below.
+  const loadedIdRef = useRef<string | null>(null);
+
   // Cue the active song (never autoplay on mount / tab change).
   useEffect(() => {
     if (!state.ready || !active) return;
+    if (loadedIdRef.current === active.id) return;
+    loadedIdRef.current = active.id;
     loadVideo(active.youtubeVideoId, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.ready, active?.id]);
@@ -65,6 +71,7 @@ function Index() {
   }, [state.ready, volume, setYtVolume]);
 
   const playSong = (song: (typeof order)[number]) => {
+    loadedIdRef.current = song.id;
     setActiveId(song.id);
     loadVideo(song.youtubeVideoId, true);
   };
@@ -75,6 +82,7 @@ function Index() {
     for (let n = 1; n <= list.length; n++) {
       const song = list[(((from + dir * n) % list.length) + list.length) % list.length];
       if (!song) continue;
+      loadedIdRef.current = song.id;
       setActiveId(song.id);
       loadVideo(song.youtubeVideoId, autoplay);
       return;
@@ -109,8 +117,8 @@ function Index() {
         <div className="absolute inset-0 bg-[radial-gradient(130%_90%_at_55%_45%,transparent_55%,oklch(0_0_0/0.42)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-40 pt-6 sm:max-w-[560px] lg:max-w-[1100px] lg:px-14">
-        <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-full lg:max-w-[520px]">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 pb-40 pt-6 sm:max-w-[560px] lg:mx-0 lg:max-w-none lg:px-10 xl:px-16">
+        <div className="w-[84%] min-w-[290px] sm:w-[70%] lg:w-[52%] lg:max-w-[620px] lg:min-w-[460px]">
           <YouTubeHeader />
           <PlaylistTabs
             playlists={playlists}
@@ -118,6 +126,7 @@ function Index() {
             onSelect={(key) => {
               const nextList = playlists.find((p) => p.key === key);
               if (!nextList) return;
+              loadedIdRef.current = null;
               yt.reset();
               setTab(key);
               setActiveId(nextList.songs[0]?.id ?? null);
@@ -153,7 +162,7 @@ function Index() {
 
       {active && (
         <div className="fixed inset-x-0 bottom-0 z-10 px-4 pb-4">
-          <div className="mx-auto w-full max-w-[380px] sm:max-w-[430px] lg:mx-0 lg:ml-14 lg:max-w-[520px]">
+          <div className="mx-auto w-full max-w-[380px] sm:max-w-[430px] lg:mx-0 lg:ml-10 lg:max-w-[620px] xl:ml-16">
             <MusicPlayer
               song={active}
               nowPlaying={state.videoTitle}
