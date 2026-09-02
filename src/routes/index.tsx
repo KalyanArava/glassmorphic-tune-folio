@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import person from "@/assets/person.jpg.asset.json";
 import { playlists, type Playlist } from "@/data/playlist";
+import { site } from "@/data/site";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
 import { PlaylistHero } from "@/components/poster/PlaylistHero";
 import { PlaylistTabs } from "@/components/poster/PlaylistTabs";
@@ -12,17 +13,10 @@ import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Nadaanian Vibes Only — Kalyan Arava's Playlist" },
-      {
-        name: "description",
-        content:
-          "A cinematic music playlist poster: Telugu, Hindi and 60s classics that play straight from YouTube.",
-      },
-      { property: "og:title", content: "Nadaanian Vibes Only — Kalyan Arava's Playlist" },
-      {
-        property: "og:description",
-        content: "Telugu, Hindi and 60s golden-era playlists, playable right on the page.",
-      },
+      { title: site.seo.title },
+      { name: "description", content: site.seo.description },
+      { property: "og:title", content: site.seo.title },
+      { property: "og:description", content: site.seo.description },
       { property: "og:type", content: "music.playlist" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -108,7 +102,7 @@ function Index() {
         />
         <img
           src={person.url}
-          alt="Kalyan Arava standing on a street at dusk"
+          alt={site.owner.photoAlt}
           className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center [mask-image:linear-gradient(to_right,transparent_0%,black_18%)] sm:w-[66%] lg:w-[58%]"
         />
         {/* Soft, natural fade so the photo stays visible and the text stays readable */}

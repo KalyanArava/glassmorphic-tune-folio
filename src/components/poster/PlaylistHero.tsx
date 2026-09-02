@@ -1,6 +1,7 @@
 import avatar from "@/assets/avatar.jpg.asset.json";
 import { Play, Shuffle, ExternalLink } from "lucide-react";
 import type { Playlist } from "@/data/playlist";
+import { site } from "@/data/site";
 
 export function PlaylistHero({
   playlist,
@@ -29,13 +30,13 @@ export function PlaylistHero({
       <div className="mt-5 flex min-w-0 items-center gap-3">
         <img
           src={avatar.url}
-          alt="Kalyan Arava"
+          alt={site.owner.name}
           className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-poster-fg/25"
         />
         <span className="min-w-0">
-          <span className="block truncate text-[0.9rem] text-poster-fg">Kalyan Arava</span>
+          <span className="block truncate text-[0.9rem] text-poster-fg">{site.owner.name}</span>
           <span className="block truncate text-[0.68rem] text-poster-fg/55">
-            {playlist.songs.length} songs • Updated today
+            {playlist.songs.length} songs • {site.owner.subtitleSuffix}
           </span>
         </span>
       </div>
