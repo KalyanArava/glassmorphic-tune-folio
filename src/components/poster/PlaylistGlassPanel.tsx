@@ -3,9 +3,9 @@ import { SongRow } from "./SongRow";
 
 type Props = {
   order: Song[];
-  activeId: number | null;
+  activeId: string | null;
   playing: boolean;
-  onSelect: (id: number) => void;
+  onSelect: (id: string) => void;
 };
 
 export function PlaylistGlassPanel({ order, activeId, playing, onSelect }: Props) {

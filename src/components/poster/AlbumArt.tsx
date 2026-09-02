@@ -9,9 +9,16 @@ export function AlbumArt({ song, className = "" }: { song: Song; className?: str
       }}
       aria-hidden
     >
-      <span className="font-serif text-[0.7rem] leading-none text-poster-fg/70">
-        {song.artist.slice(0, 1)}
-      </span>
+      <img
+        key={song.id}
+        src={song.thumbnail}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+        }}
+      />
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-poster-shade/40 to-poster-fg/10" />
     </span>
   );
