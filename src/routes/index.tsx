@@ -102,7 +102,7 @@ function Index() {
         />
         <img
           src={person.url}
-          alt="Kalyan Arava standing on a street at dusk"
+          alt={site.owner.photoAlt}
           className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center [mask-image:linear-gradient(to_right,transparent_0%,black_18%)] sm:w-[66%] lg:w-[58%]"
         />
         {/* Soft, natural fade so the photo stays visible and the text stays readable */}
