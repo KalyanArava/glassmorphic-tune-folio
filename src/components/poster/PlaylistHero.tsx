@@ -1,6 +1,7 @@
 import avatar from "@/assets/avatar.jpg.asset.json";
 import { Play, Shuffle, ExternalLink } from "lucide-react";
 import type { Playlist } from "@/data/playlist";
+import { site } from "@/data/site";
 
 export function PlaylistHero({
   playlist,
