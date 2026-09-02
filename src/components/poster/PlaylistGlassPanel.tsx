@@ -1,5 +1,9 @@
 import type { Song } from "@/data/playlist";
+import { site } from "@/data/site";
 import { SongRow } from "./SongRow";
+
+/** Row height (rem) used to turn `site.ui.visibleSongs` into a max height. */
+const ROW_REM = 3.25;
 
 type Props = {
   order: Song[];
