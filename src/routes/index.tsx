@@ -112,9 +112,9 @@ function Index() {
           className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center [mask-image:linear-gradient(to_right,transparent_0%,black_18%)] sm:w-[66%] lg:w-[58%]"
         />
         {/* Soft, natural fade so the photo stays visible and the text stays readable */}
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,oklch(0.11_0.01_260/0.66)_0%,oklch(0.11_0.01_260/0.58)_30%,oklch(0.11_0.01_260/0.46)_52%,oklch(0.11_0.01_260/0.16)_74%,transparent_95%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,oklch(0.11_0.01_260/0.75),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(130%_90%_at_55%_45%,transparent_55%,oklch(0_0_0/0.42)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(105deg,oklch(0.18_0.03_268/0.5)_0%,oklch(0.18_0.03_268/0.4)_34%,oklch(0.18_0.03_268/0.24)_58%,transparent_82%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,oklch(0.14_0.02_265/0.6),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_45%,transparent_62%,oklch(0.1_0.02_265/0.3)_100%)]" />
       </div>
 
       <div className="relative mx-0 flex min-h-screen w-full max-w-none flex-col px-5 pb-40 pt-6 sm:px-8 lg:px-10 xl:px-16">
