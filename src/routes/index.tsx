@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import personMobile from "@/assets/person-mobile.jpg.asset.json";
+import personMobile from "@/assets/person-mobile-2.png.asset.json";
 import personDesktop from "@/assets/person-desktop.png.asset.json";
 import { playlists, type Playlist } from "@/data/playlist";
 import { site } from "@/data/site";
