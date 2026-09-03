@@ -91,24 +91,20 @@ function Index() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-poster-shade font-sans text-poster-fg">
-      {/* Photograph */}
+      {/* Photograph — portrait shot on mobile, wide shot on desktop; both fully visible, no dark wash */}
       <div className="pointer-events-none fixed inset-0">
-        {/* Blurred full-bleed backdrop so the left side feels natural, not a black block */}
         <img
-          src={person.url}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full scale-150 object-cover object-[75%_center] opacity-100 blur-[60px] saturate-[1.7] brightness-[1.35]"
-        />
-        {/* Complete photo, uncropped, anchored right; blurred copy above fills the rest */}
-        <img
-          src={person.url}
+          src={personMobile.url}
           alt={site.owner.photoAlt}
-          className="absolute inset-y-0 right-0 h-full w-auto max-w-none [mask-image:linear-gradient(to_right,transparent_0%,black_26%)]"
+          className="absolute inset-0 h-full w-full object-cover object-[center_20%] md:hidden"
         />
-        {/* Light readability tint only — no black wash, photo colors stay visible */}
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,oklch(0.35_0.05_265/0.34)_0%,oklch(0.4_0.05_265/0.2)_38%,transparent_64%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-1/4 bg-[linear-gradient(to_top,oklch(0.3_0.04_265/0.35),transparent)]" />
+        <img
+          src={personDesktop.url}
+          alt={site.owner.photoAlt}
+          className="absolute inset-0 hidden h-full w-full object-cover object-center md:block"
+        />
+        {/* Very light tint behind the text column only, so the whole photo stays visible */}
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.35_0.05_265/0.28)_0%,oklch(0.4_0.05_265/0.12)_32%,transparent_55%)]" />
       </div>
 
       <div className="relative mx-0 flex min-h-screen w-full max-w-none flex-col px-5 pb-40 pt-6 sm:px-8 lg:px-10 xl:px-16">
