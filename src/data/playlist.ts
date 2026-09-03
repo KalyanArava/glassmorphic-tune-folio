@@ -109,6 +109,7 @@ const hindiRaw: Raw[] = [
   ["gRRMSF0nB0c", "Jugraafiya", "Super 30", "3:06"],
   ["uNboFgKLGDY", "KAUN TUJHE", "Armaan Malik", "3:39"],
   ["9pIXNy-pS10", "KHAIRIYAT", "Sushant Singh Rajput,Shraddha Kapoor", "3:46"],
+  ["lgTHGZF3BQw", "Pal Pal Dil Ke Paas", "Arijit Singh", "4:07"],
 ];
 
 const sixtiesRaw: Raw[] = [
