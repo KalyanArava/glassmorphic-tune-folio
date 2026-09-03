@@ -100,13 +100,14 @@ function Index() {
           aria-hidden="true"
           className="absolute inset-0 h-full w-full scale-125 object-cover object-center opacity-100 blur-[90px] saturate-150 brightness-110"
         />
+        {/* Sharp photo covers the whole screen on every size; left scrim keeps text readable */}
         <img
           src={person.url}
           alt={site.owner.photoAlt}
-          className="absolute inset-y-0 right-0 h-full w-[72%] object-cover object-center [mask-image:linear-gradient(to_right,transparent_0%,black_18%)] sm:w-[66%] lg:w-[58%]"
+          className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
         />
         {/* Soft, natural fade so the photo stays visible and the text stays readable */}
-        <div className="absolute inset-0 bg-[linear-gradient(105deg,oklch(0.18_0.03_268/0.5)_0%,oklch(0.18_0.03_268/0.4)_34%,oklch(0.18_0.03_268/0.24)_58%,transparent_82%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(105deg,oklch(0.18_0.03_268/0.62)_0%,oklch(0.18_0.03_268/0.45)_32%,oklch(0.18_0.03_268/0.2)_55%,transparent_78%)]" />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,oklch(0.14_0.02_265/0.6),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_45%,transparent_62%,oklch(0.1_0.02_265/0.3)_100%)]" />
       </div>
