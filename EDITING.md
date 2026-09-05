@@ -32,6 +32,14 @@ below the song lists in the same file.
 Owner name, the caption under it, the "curated by" line, how many songs are
 visible before scrolling, and the browser tab title / share description.
 
+## 2b. Lyrics — `src/data/lyrics.ts`
+
+One entry per song, keyed by its YouTube video id (same id as in
+`src/data/playlist.ts`). Paste the words, one line per row; blank line = a
+pause. The lyrics card under the list scrolls in time with the music
+automatically — no timestamps needed. Songs without an entry simply don't
+show a lyrics card.
+
 ## 3. Photos
 
 - Big background photo: `src/assets/person.jpg.asset.json`
