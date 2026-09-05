@@ -151,6 +151,13 @@ function Index() {
             playing={state.playing}
             onSelect={select}
           />
+          {active && (
+            <LyricsPanel
+              song={active}
+              progress={state.current}
+              durationSec={state.duration}
+            />
+          )}
         </div>
       </div>
 
