@@ -31,12 +31,23 @@ function Index() {
   const order = current.songs;
   const [activeId, setActiveId] = useState<string | null>(order[0]?.id ?? null);
   const [volume, setVolume] = useState(70);
-  
+
+  // The song that is actually loaded/playing — it can belong to any playlist,
+  // so browsing another language never interrupts playback.
+  const active = useMemo(
+    () => playlists.flatMap((p) => p.songs).find((s) => s.id === activeId) ?? null,
+    [activeId],
+  );
+  // Songs of the playlist the *playing* song belongs to (used by next/prev).
+  const activeList = useMemo(
+    () => (active ? (playlists.find((p) => p.id === active.playlistId)?.songs ?? order) : order),
+    [active, order],
+  );
 
   const activeIdRef = useRef<string | null>(activeId);
   activeIdRef.current = activeId;
-  const orderRef = useRef(order);
-  orderRef.current = order;
+  const orderRef = useRef(activeList);
+  orderRef.current = activeList;
 
   const stepRef = useRef<(dir: 1 | -1, autoplay: boolean) => void>(() => {});
 
@@ -46,13 +57,11 @@ function Index() {
   });
   const { state, loadVideo, toggle, setVolume: setYtVolume } = yt;
 
-  const active = useMemo(() => order.find((s) => s.id === activeId) ?? null, [order, activeId]);
-
   // Tracks the song id already handed to the player, so a user-initiated play
-  // isn't immediately re-cued (paused) by the mount/tab-change effect below.
+  // isn't immediately re-cued (paused) by the mount effect below.
   const loadedIdRef = useRef<string | null>(null);
 
-  // Cue the active song (never autoplay on mount / tab change).
+  // Cue the active song on first load only (never autoplay, never on tab change).
   useEffect(() => {
     if (!state.ready || !active) return;
     if (loadedIdRef.current === active.id) return;
@@ -90,6 +99,7 @@ function Index() {
     if (song) playSong(song);
   };
 
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-poster-shade font-sans text-poster-fg">
       {/* Photograph — portrait shot on mobile, wide shot on desktop; both fully visible, no dark wash */}
@@ -115,13 +125,12 @@ function Index() {
             playlists={playlists}
             activeKey={tab}
             onSelect={(key) => {
-              const nextList = playlists.find((p) => p.key === key);
-              if (!nextList) return;
-              loadedIdRef.current = null;
-              yt.reset();
+              // Browsing another language never stops the current song —
+              // playback only changes when a song is tapped.
+              if (!playlists.some((p) => p.key === key)) return;
               setTab(key);
-              setActiveId(nextList.songs[0]?.id ?? null);
             }}
+
           />
           <PlaylistHero
             playlist={current}
