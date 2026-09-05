@@ -10,6 +10,7 @@ import { PlaylistTabs } from "@/components/poster/PlaylistTabs";
 import { PlaylistGlassPanel } from "@/components/poster/PlaylistGlassPanel";
 import { MusicPlayer } from "@/components/poster/MusicPlayer";
 import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
+import { LyricsPanel } from "@/components/poster/LyricsPanel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
