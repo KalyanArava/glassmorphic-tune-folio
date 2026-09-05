@@ -125,13 +125,12 @@ function Index() {
             playlists={playlists}
             activeKey={tab}
             onSelect={(key) => {
-              const nextList = playlists.find((p) => p.key === key);
-              if (!nextList) return;
-              loadedIdRef.current = null;
-              yt.reset();
+              // Browsing another language never stops the current song —
+              // playback only changes when a song is tapped.
+              if (!playlists.some((p) => p.key === key)) return;
               setTab(key);
-              setActiveId(nextList.songs[0]?.id ?? null);
             }}
+
           />
           <PlaylistHero
             playlist={current}
