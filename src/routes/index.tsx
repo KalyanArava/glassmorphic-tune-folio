@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import personMobile from "@/assets/person-mobile-2.png.asset.json";
-import personDesktop from "@/assets/person-desktop.png.asset.json";
 import { playlists, type Playlist } from "@/data/playlist";
 import { site } from "@/data/site";
 import { YouTubeHeader } from "@/components/poster/YouTubeHeader";
@@ -11,6 +9,7 @@ import { PlaylistGlassPanel } from "@/components/poster/PlaylistGlassPanel";
 import { MusicPlayer } from "@/components/poster/MusicPlayer";
 import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 import { LyricsPanel } from "@/components/poster/LyricsPanel";
+import { PosterPage } from "@/components/poster/PosterPage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -102,25 +101,7 @@ function Index() {
 
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-poster-shade font-sans text-poster-fg">
-      {/* Photograph — portrait shot on mobile, wide shot on desktop; both fully visible, no dark wash */}
-      <div className="pointer-events-none fixed inset-0">
-        <img
-          src={personMobile.url}
-          alt={site.owner.photoAlt}
-          className="absolute inset-0 h-full w-full object-cover object-[center_20%] md:hidden"
-        />
-        <img
-          src={personDesktop.url}
-          alt={site.owner.photoAlt}
-          className="absolute inset-0 hidden h-full w-full object-cover object-center md:block"
-        />
-        {/* Very light tint behind the text column only, so the whole photo stays visible */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.35_0.05_265/0.28)_0%,oklch(0.4_0.05_265/0.12)_32%,transparent_55%)]" />
-      </div>
-
-      <div className="relative mx-0 flex min-h-screen w-full max-w-none flex-col px-5 pb-40 pt-6 sm:px-8 lg:px-10 xl:px-16">
-        <div className="w-full min-w-0 sm:w-[72%] sm:max-w-[560px] lg:w-[52%] lg:max-w-[620px] lg:min-w-[460px]">
+    <PosterPage reservePlayerSpace>
           <YouTubeHeader />
           <PlaylistTabs
             playlists={playlists}
@@ -158,9 +139,6 @@ function Index() {
               durationSec={state.duration}
             />
           )}
-        </div>
-      </div>
-
       {/* Live YouTube video — small glass card, this is what produces the sound */}
       <div className="fixed bottom-[7.5rem] right-4 z-20 w-[168px] overflow-hidden rounded-[16px] border border-poster-fg/20 bg-poster-shade/50 p-1 shadow-glass backdrop-blur-2xl sm:w-[200px] lg:bottom-4 lg:right-6 lg:w-[240px]">
         <div className="aspect-video w-full overflow-hidden rounded-[12px] bg-black">
@@ -190,6 +168,6 @@ function Index() {
           </div>
         </div>
       )}
-    </main>
+    </PosterPage>
   );
 }

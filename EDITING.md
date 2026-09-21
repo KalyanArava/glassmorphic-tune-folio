@@ -27,10 +27,11 @@ below the song lists in the same file.
 3. Add a new entry to the exported `playlists` array using the same shape as
    the existing ones. Tabs update automatically.
 
-## 2. Name, photo text, SEO — `src/data/site.ts`
+## 2. Name, About page, photo text, SEO — `src/data/site.ts`
 
 Owner name, the caption under it, the "curated by" line, how many songs are
-visible before scrolling, and the browser tab title / share description.
+visible before scrolling, the full About page text and highlights, and each
+page's browser tab title / share description.
 
 ## 2b. Lyrics — `src/data/lyrics.ts`
 
