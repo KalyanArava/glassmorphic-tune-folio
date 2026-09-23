@@ -54,12 +54,14 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
 
   const onDown = (e: React.PointerEvent) => {
     start.current = { x: e.clientX, moved: false };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onMove = (e: React.PointerEvent) => {
     if (start.current) {
       const dx = e.clientX - start.current.x;
-      if (Math.abs(dx) > 6) start.current.moved = true;
+      if (Math.abs(dx) > 6 && !start.current.moved) {
+        start.current.moved = true;
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      }
       setDrag(dx);
     } else if (e.pointerType === "mouse" && !reduced && rootRef.current) {
       const r = rootRef.current.getBoundingClientRect();
@@ -109,7 +111,7 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
         onPointerCancel={onUp}
       >
         <div
-          className="absolute inset-0"
+          className="pointer-events-none absolute inset-0"
           style={{
             transformStyle: "preserve-3d",
             transform: `rotateX(${-tilt.y * 3}deg) rotateY(${tilt.x * 4}deg)`,
@@ -134,7 +136,7 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
                   if (isCenter) onPlay(song.id);
                   else setCenter(idx);
                 }}
-                className="absolute left-1/2 top-1/2 w-[168px] -ml-[84px] -mt-[112px] overflow-hidden rounded-[18px] border border-poster-fg/20 bg-poster-shade/40 p-2 text-left shadow-glass backdrop-blur-xl sm:w-[180px] sm:-ml-[90px]"
+                className="pointer-events-auto absolute left-1/2 top-1/2 w-[168px] -ml-[84px] -mt-[112px] overflow-hidden rounded-[18px] border border-poster-fg/20 bg-poster-shade/40 p-2 text-left shadow-glass backdrop-blur-xl sm:w-[180px] sm:-ml-[90px]"
                 style={{
                   transform: `translateX(${p * spacing}px) translateZ(${-a * 120}px) rotateY(${-Math.max(-1, Math.min(1, p)) * 28}deg) scale(${scale})`,
                   zIndex: 10 - Math.round(a),
