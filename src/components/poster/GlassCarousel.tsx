@@ -54,12 +54,14 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
 
   const onDown = (e: React.PointerEvent) => {
     start.current = { x: e.clientX, moved: false };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onMove = (e: React.PointerEvent) => {
     if (start.current) {
       const dx = e.clientX - start.current.x;
-      if (Math.abs(dx) > 6) start.current.moved = true;
+      if (Math.abs(dx) > 6 && !start.current.moved) {
+        start.current.moved = true;
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      }
       setDrag(dx);
     } else if (e.pointerType === "mouse" && !reduced && rootRef.current) {
       const r = rootRef.current.getBoundingClientRect();
