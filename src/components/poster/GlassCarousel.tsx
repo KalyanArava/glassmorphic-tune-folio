@@ -101,7 +101,7 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
       className="relative mt-6 overflow-hidden rounded-[20px] outline-none focus-visible:ring-2 focus-visible:ring-poster-fg/40"
     >
       <div
-        className="relative h-[250px] touch-pan-y select-none sm:h-[270px]"
+        className="relative h-[275px] touch-pan-y select-none sm:h-[290px]"
         style={{ perspective: "1100px" }}
         onPointerDown={onDown}
         onPointerMove={onMove}
