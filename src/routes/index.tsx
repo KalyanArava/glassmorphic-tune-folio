@@ -10,6 +10,7 @@ import { MusicPlayer } from "@/components/poster/MusicPlayer";
 import { useYouTubePlayer } from "@/hooks/useYouTubePlayer";
 import { LyricsPanel } from "@/components/poster/LyricsPanel";
 import { PosterPage } from "@/components/poster/PosterPage";
+import { GlassCarousel } from "@/components/poster/GlassCarousel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -124,6 +125,13 @@ function Index() {
               const song = order[Math.floor(Math.random() * order.length)];
               if (song) playSong(song);
             }}
+          />
+
+          <GlassCarousel
+            songs={order}
+            activeId={activeId}
+            playing={state.playing}
+            onPlay={select}
           />
 
           <PlaylistGlassPanel
