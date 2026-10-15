@@ -28,7 +28,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [tab, setTab] = useState<Playlist["key"]>("telugu");
-  const current = playlists.find((p) => p.key === tab) ?? playlists[0]!;
+  const current = playlists.find((p) => p.key === tab) ?? playlists[0];
+  if (!current) return null;
   const order = current.songs;
   const [activeId, setActiveId] = useState<string | null>(order[0]?.id ?? null);
   const [volume, setVolume] = useState(70);
@@ -130,6 +131,7 @@ function Index() {
           <GlassCarousel
             songs={order}
             activeId={activeId}
+            activeArtwork={active?.thumbnail}
             playing={state.playing}
             onPlay={select}
           />
@@ -145,6 +147,8 @@ function Index() {
               song={active}
               progress={state.current}
               durationSec={state.duration}
+              onSeek={yt.seek}
+              ready={state.ready}
             />
           )}
       {/* Live YouTube video — small glass card, this is what produces the sound */}

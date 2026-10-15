@@ -41,6 +41,13 @@ pause. The lyrics card under the list scrolls in time with the music
 automatically — no timestamps needed. Songs without an entry simply don't
 show a lyrics card.
 
+Tap a nonblank lyric line to seek to its approximate position in the song.
+Timing uses line position ÷ total lines × song duration, including blank pauses;
+it is proportional, not word-perfect synchronization. Seeking does not select
+a different song. The carousel glow uses the playing song's thumbnail and
+keeps that palette while you browse another language. Its blur, saturation,
+and playing/paused intensity are editable via `--ambient-*` in `src/styles.css`.
+
 ## 3. Photos
 
 - Big background photo: `src/assets/person.jpg.asset.json`

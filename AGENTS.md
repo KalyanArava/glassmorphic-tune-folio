@@ -11,3 +11,5 @@
 
 - Playlist presentation controls use the shared Button glass variants so interactive states remain consistent with the poster theme.
 - Carousel gestures batch visual updates through animation frames and keep browsing separate from the existing audio state to preserve continuous playback.
+- Lyric seeking shares the proportional plain-text timeline in src/lib/lyric-timing.ts and calls the existing player's seek API, avoiding a second playback system.
+- AmbientArtwork crossfades preloaded artwork behind carousel cards using CSS blur rather than canvas sampling, avoiding cross-origin palette failures and following the global active track.
