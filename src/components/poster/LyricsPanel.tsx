@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { MicVocal } from "lucide-react";
 import type { Song } from "@/data/playlist";
 import { lyrics } from "@/data/lyrics";
+import { Button } from "@/components/ui/button";
+import { lyricSeekTime } from "@/lib/lyric-timing";
 
 type Props = {
   song: Song;
@@ -9,6 +11,8 @@ type Props = {
   progress: number;
   /** Real duration from the player when known (falls back to song.seconds). */
   durationSec?: number;
+  onSeek: (seconds: number) => void;
+  ready: boolean;
 };
 
 /**
@@ -16,7 +20,7 @@ type Props = {
  * The scroll position is simply progress ÷ duration mapped onto the full
  * text height, so any pasted lyrics stay in rough sync without timestamps.
  */
-export function LyricsPanel({ song, progress, durationSec }: Props) {
+export function LyricsPanel({ song, progress, durationSec, onSeek, ready }: Props) {
   const text = lyrics[song.youtubeVideoId];
   const lines = useMemo(() => (text ? text.split("\n") : []), [text]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -28,8 +32,8 @@ export function LyricsPanel({ song, progress, durationSec }: Props) {
     if (!el) return;
     const ratio = Math.min(1, Math.max(0, progress / total));
     const max = el.scrollHeight - el.clientHeight;
-    el.scrollTo({ top: max * ratio, behavior: "smooth" });
-  }, [progress, total]);
+    el.scrollTo({ top: max * ratio, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  }, [progress, total, song.id]);
 
   if (!text) return null;
 
@@ -49,7 +53,7 @@ export function LyricsPanel({ song, progress, durationSec }: Props) {
         {lines.map((line, i) => (
           <p
             key={i}
-            className={`py-0.5 font-serif text-[0.85rem] leading-relaxed transition-colors duration-500 ${
+            className={`font-serif text-[0.85rem] leading-relaxed transition-colors duration-500 ${
               line.trim() === ""
                 ? "h-3"
                 : i === activeLine
@@ -57,7 +61,20 @@ export function LyricsPanel({ song, progress, durationSec }: Props) {
                   : "text-poster-fg/50"
             }`}
           >
-            {line}
+            {line.trim() !== "" && (
+              <Button
+                variant="glass"
+                type="button"
+                disabled={!ready || total <= 0}
+                onClick={() => onSeek(lyricSeekTime(i, lines.length, total))}
+                aria-current={i === activeLine ? "true" : undefined}
+                aria-label={`Seek to lyric: ${line}`}
+                title="Seek to this lyric"
+                className="h-auto min-h-9 w-full justify-start whitespace-normal border-0 bg-transparent px-2 py-1 text-left font-serif text-[0.85rem] font-normal leading-relaxed text-inherit backdrop-blur-none hover:bg-poster-fg/8 motion-reduce:transition-none"
+              >
+                {line}
+              </Button>
+            )}
           </p>
         ))}
       </div>

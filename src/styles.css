@@ -92,6 +92,11 @@
 }
 
 :root {
+  --ambient-blur: 38px;
+  --ambient-saturation: 1.65;
+  --ambient-opacity-playing: 0.55;
+  --ambient-opacity-paused: 0.28;
+  --ambient-edge-mask: linear-gradient(to bottom, transparent, oklch(0 0 0) 24%, oklch(0 0 0) 75%, transparent);
   --radius: 0.625rem;
   --poster-fg: oklch(0.985 0 0);
   --poster-shade: oklch(0.14 0.005 260);
@@ -174,4 +179,39 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+.artwork-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  opacity: var(--ambient-opacity-paused);
+  mask-image: var(--ambient-edge-mask);
+  transition: opacity 1200ms ease;
+}
+
+.artwork-ambient[data-playing="true"] {
+  opacity: var(--ambient-opacity-playing);
+}
+
+.artwork-ambient-layer {
+  position: absolute;
+  inset: -15%;
+  width: 130%;
+  height: 130%;
+  object-fit: cover;
+  filter: blur(var(--ambient-blur)) saturate(var(--ambient-saturation));
+  animation: ambient-reveal 1400ms ease both;
+}
+
+@keyframes ambient-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artwork-ambient { transition: none; }
+  .artwork-ambient-layer { animation: none; }
 }

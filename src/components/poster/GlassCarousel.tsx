@@ -2,18 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Song } from "@/data/playlist";
+import { AmbientArtwork } from "@/components/poster/AmbientArtwork";
 
 type Props = {
   songs: Song[];
   activeId: string | null;
   playing: boolean;
+  activeArtwork: string | undefined;
   onPlay: (id: string) => void;
 };
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
 /** Cinematic 3D glass carousel of the tracks in the displayed playlist. */
-export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
+export function GlassCarousel({ songs, activeId, activeArtwork, playing, onPlay }: Props) {
   const len = songs.length;
   const [center, setCenter] = useState(0);
   const [drag, setDrag] = useState(0);
@@ -139,6 +141,7 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
         onPointerUp={onUp}
         onPointerCancel={onUp}
       >
+        <AmbientArtwork artwork={activeArtwork} playing={playing} />
         <div
           className="pointer-events-none absolute inset-0"
           style={{
