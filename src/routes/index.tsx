@@ -29,8 +29,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [tab, setTab] = useState<Playlist["key"]>("telugu");
   const current = playlists.find((p) => p.key === tab) ?? playlists[0];
-  if (!current) return null;
-  const order = current.songs;
+  const order = current?.songs ?? [];
   const [activeId, setActiveId] = useState<string | null>(order[0]?.id ?? null);
   const [volume, setVolume] = useState(70);
 
@@ -101,6 +100,8 @@ function Index() {
     if (song) playSong(song);
   };
 
+
+  if (!current) return null;
 
   return (
     <PosterPage reservePlayerSpace>

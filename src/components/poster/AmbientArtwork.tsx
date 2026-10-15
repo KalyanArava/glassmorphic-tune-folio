@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 /** The artwork itself supplies the palette, without canvas/CORS sampling. */
-export function AmbientArtwork({ artwork, playing }: { artwork?: string; playing: boolean }) {
-  const [layers, setLayers] = useState<{ current?: string; previous?: string }>({});
+export function AmbientArtwork({ artwork, playing }: { artwork: string | undefined; playing: boolean }) {
+  const [layers, setLayers] = useState<{ current: string | undefined; previous: string | undefined }>({ current: undefined, previous: undefined });
 
   useEffect(() => {
     if (!artwork) return;

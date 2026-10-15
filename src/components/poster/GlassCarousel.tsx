@@ -8,7 +8,7 @@ type Props = {
   songs: Song[];
   activeId: string | null;
   playing: boolean;
-  activeArtwork?: string;
+  activeArtwork: string | undefined;
   onPlay: (id: string) => void;
 };
 
