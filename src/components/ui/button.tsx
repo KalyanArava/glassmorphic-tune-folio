@@ -9,6 +9,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        glass: "border border-poster-fg/20 bg-poster-shade/40 text-poster-fg backdrop-blur-xl hover:border-poster-fg/40 hover:bg-poster-fg/15 focus-visible:ring-poster-fg/60",
+        glassCard: "border border-poster-fg/20 bg-poster-shade/40 text-poster-fg shadow-glass backdrop-blur-xl hover:border-poster-fg/40 focus-visible:ring-poster-fg/60",
+        playlistTab: "text-poster-fg/70 hover:text-poster-fg hover:bg-poster-fg/8 data-[selected=true]:bg-poster-fg/92 data-[selected=true]:text-poster-shade focus-visible:ring-poster-fg/60",
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Song } from "@/data/playlist";
 
 type Props = {
@@ -18,7 +20,9 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [range, setRange] = useState(3);
   const [reduced, setReduced] = useState(false);
-  const start = useRef<{ x: number; moved: boolean } | null>(null);
+  const start = useRef<{ x: number; y: number; time: number; moved: boolean; dx: number } | null>(null);
+  const frame = useRef<number | null>(null);
+  const suppressClick = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,6 +36,7 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
     mq.addEventListener("change", upd);
     sm.addEventListener("change", upd);
     return () => {
+      if (frame.current !== null) cancelAnimationFrame(frame.current);
       mq.removeEventListener("change", upd);
       sm.removeEventListener("change", upd);
     };
@@ -41,6 +46,8 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
   useEffect(() => {
     const i = songs.findIndex((s) => s.id === activeId);
     setCenter(i >= 0 ? i : 0);
+    setDrag(0);
+    start.current = null;
   }, [songs, activeId]);
 
   if (!len) {
@@ -53,40 +60,61 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
   const spacing = range === 1 ? 150 : 175;
 
   const onDown = (e: React.PointerEvent) => {
-    start.current = { x: e.clientX, moved: false };
+    if (!e.isPrimary || e.button !== 0) return;
+    suppressClick.current = false;
+    start.current = { x: e.clientX, y: e.clientY, time: performance.now(), moved: false, dx: 0 };
   };
   const onMove = (e: React.PointerEvent) => {
     if (start.current) {
       const dx = e.clientX - start.current.x;
+      if (!start.current.moved && Math.abs(e.clientY - start.current.y) > Math.abs(dx) + 6) {
+        start.current = null;
+        return;
+      }
       if (Math.abs(dx) > 6 && !start.current.moved) {
         start.current.moved = true;
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       }
-      setDrag(dx);
+      start.current.dx = dx;
+      if (frame.current === null) frame.current = requestAnimationFrame(() => {
+        frame.current = null;
+        setDrag(start.current?.dx ?? 0);
+      });
     } else if (e.pointerType === "mouse" && !reduced && rootRef.current) {
       const r = rootRef.current.getBoundingClientRect();
-      setTilt({
-        x: ((e.clientX - r.left) / r.width - 0.5) * 2,
-        y: ((e.clientY - r.top) / r.height - 0.5) * 2,
+      const x = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      const y = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      if (frame.current === null) frame.current = requestAnimationFrame(() => {
+        frame.current = null;
+        setTilt({ x, y });
       });
     }
   };
-  const onUp = () => {
+  const onUp = (e: React.PointerEvent) => {
     if (!start.current) return;
-    const steps = Math.round(-drag / spacing);
-    if (steps) go(steps);
+    const gesture = start.current;
+    if (frame.current !== null) cancelAnimationFrame(frame.current);
+    frame.current = null;
+    suppressClick.current = gesture.moved;
+    const velocity = gesture.dx / Math.max(1, performance.now() - gesture.time);
+    const projected = gesture.dx + velocity * 100;
+    const steps = Math.max(-2, Math.min(2, Math.round(-projected / spacing)));
+    if (e.type !== "pointercancel" && steps) go(steps);
     setDrag(0);
-    setTimeout(() => (start.current = null), 0);
+    start.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
   const offsetFloat = drag / spacing;
   const cards: { song: Song; idx: number; off: number }[] = [];
-  const shown = Math.min(range, Math.floor((len - 1) / 2));
-  for (let o = -shown; o <= shown; o++) {
+  const shown = Math.min(range + 1, Math.floor((len - 1) / 2));
+  for (let o = -shown; o <= (len === 2 ? 1 : shown); o++) {
     const idx = mod(center + o, len);
-    cards.push({ song: songs[idx]!, idx, off: o });
+    const song = songs[idx];
+    if (song) cards.push({ song, idx, off: o });
   }
-  const current = songs[center]!;
+  const current = songs[mod(center, len)];
+  if (!current) return null;
 
   return (
     <section
@@ -95,6 +123,7 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
       aria-label="Tracks carousel"
       tabIndex={0}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
         if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPlay(current.id); }
@@ -125,24 +154,25 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
             const isCenter = off === 0;
             const isPlaying = song.id === activeId;
             return (
-              <button
+              <Button
                 key={song.id}
+                variant="glassCard"
                 type="button"
                 tabIndex={-1}
                 aria-label={`${isCenter ? "Play" : "Show"} ${song.title} by ${song.artist}`}
                 aria-current={isCenter ? "true" : undefined}
                 onClick={() => {
-                  if (start.current?.moved) return;
+                  if (suppressClick.current) { suppressClick.current = false; return; }
                   if (isCenter) onPlay(song.id);
                   else setCenter(idx);
                 }}
-                className="pointer-events-auto absolute left-1/2 top-1/2 w-[168px] -ml-[84px] -mt-[112px] overflow-hidden rounded-[18px] border border-poster-fg/20 bg-poster-shade/40 p-2 text-left shadow-glass backdrop-blur-xl sm:w-[180px] sm:-ml-[90px]"
+                className="group pointer-events-auto absolute left-1/2 top-1/2 -ml-[84px] -mt-[112px] block h-auto w-[168px] overflow-hidden whitespace-normal rounded-[18px] p-2 text-left sm:-ml-[90px] sm:w-[180px]"
                 style={{
                   transform: `translateX(${p * spacing}px) translateZ(${-a * 120}px) rotateY(${-Math.max(-1, Math.min(1, p)) * 28}deg) scale(${scale})`,
                   zIndex: 10 - Math.round(a),
-                  opacity: Math.max(0, 1 - a * 0.28),
-                  filter: isCenter ? "none" : `blur(${Math.min(a, 3) * 0.8}px) brightness(${1 - a * 0.12})`,
-                  transition: drag || reduced ? "none" : "transform 550ms cubic-bezier(.2,.9,.25,1.05), opacity 400ms, filter 400ms",
+                  opacity: Math.max(0, 1 - a / (range + 1)),
+                  pointerEvents: a > range + 0.5 ? "none" : "auto",
+                  transition: drag || reduced ? "none" : "transform 650ms cubic-bezier(.22,1,.36,1), opacity 450ms ease, border-color 250ms ease",
                   willChange: "transform",
                 }}
               >
@@ -155,7 +185,9 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
                     className="h-full w-full object-cover"
                   />
                   {isCenter && (
-                    <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-poster-fg/25 via-transparent to-transparent" />
+                    <span className="pointer-events-none absolute inset-0 grid place-items-center bg-gradient-to-br from-poster-fg/15 via-transparent to-transparent">
+                      <span className="grid h-10 w-10 place-items-center rounded-full border border-poster-fg/40 bg-poster-shade/45 text-poster-fg opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"><Play aria-hidden className="ml-0.5 h-4 w-4" /></span>
+                    </span>
                   )}
                   {isPlaying && (
                     <span className="absolute right-1.5 top-1.5 rounded-full bg-poster-shade/70 px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.18em] text-poster-fg backdrop-blur-md">
@@ -169,33 +201,39 @@ export function GlassCarousel({ songs, activeId, playing, onPlay }: Props) {
                     {song.artist} • {song.duration}
                   </p>
                 </div>
-              </button>
+              </Button>
             );
           })}
         </div>
       </div>
 
       <div className="flex items-center justify-between px-2 pb-1">
-        <button
+        <Button
+          variant="glass"
+          size="icon"
           type="button"
           onClick={() => go(-1)}
           aria-label="Previous track in carousel"
-          className="grid h-8 w-8 place-items-center rounded-full border border-poster-fg/20 bg-poster-shade/40 text-poster-fg backdrop-blur-md transition hover:bg-poster-shade/60"
+          title="Previous track"
+          className="h-9 w-9 rounded-full transition-[background-color,border-color,transform] duration-200 active:scale-95 motion-reduce:transition-none"
         >
-          ‹
-        </button>
+          <ChevronLeft aria-hidden />
+        </Button>
         <p className="text-[0.56rem] uppercase tracking-[0.24em] text-poster-fg/45" aria-live="polite">
           <span className="sr-only">{current.title}. </span>
-          Swipe / Drag • Tap center to play
+          {mod(center, len) + 1} / {len}
         </p>
-        <button
+        <Button
+          variant="glass"
+          size="icon"
           type="button"
           onClick={() => go(1)}
           aria-label="Next track in carousel"
-          className="grid h-8 w-8 place-items-center rounded-full border border-poster-fg/20 bg-poster-shade/40 text-poster-fg backdrop-blur-md transition hover:bg-poster-shade/60"
+          title="Next track"
+          className="h-9 w-9 rounded-full transition-[background-color,border-color,transform] duration-200 active:scale-95 motion-reduce:transition-none"
         >
-          ›
-        </button>
+          <ChevronRight aria-hidden />
+        </Button>
       </div>
     </section>
   );
